@@ -1,0 +1,16 @@
+func _input(_event):
+	if Input.is_action_just_pressed("LeftMouseBoutton"):
+		var camera = get_tree().get_nodes_in_group("camera")[0]
+		var mouse_postion = get_viewport().get_mouse_position()
+		var raylength = 100 
+		var from = camera.project_ray_origin(mouse_postion)
+		var to = from + camera.project_ray_normal(mouse_postion) * raylength
+		var space = get_world_3d().direct_space_state
+		var RayQuery = PhysicsRayQueryParameters3D.new()
+		RayQuery.from = from
+		RayQuery.to = to
+		RayQuery.collide_with_areas = true
+		var result = space.intersect_ray(RayQuery)
+		if result.size() < 1:
+			return
+		navigationAgent.target_position = result.position
