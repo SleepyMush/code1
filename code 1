@@ -1,16 +1,43 @@
-func _input(_event):
-	if Input.is_action_just_pressed("LeftMouseBoutton"):
-		var camera = get_tree().get_nodes_in_group("camera")[0]
-		var mouse_postion = get_viewport().get_mouse_position()
-		var raylength = 100 
-		var from = camera.project_ray_origin(mouse_postion)
-		var to = from + camera.project_ray_normal(mouse_postion) * raylength
-		var space = get_world_3d().direct_space_state
-		var RayQuery = PhysicsRayQueryParameters3D.new()
-		RayQuery.from = from
-		RayQuery.to = to
-		RayQuery.collide_with_areas = true
-		var result = space.intersect_ray(RayQuery)
-		if result.size() < 1:
-			return
-		navigationAgent.target_position = result.position
+extends Sprite3D
+
+@onready var health_bar_2d = $SubViewport/Health_bar2D
+
+func _ready():
+	texture = $SubViewport.get_texture()
+	
+func update_health(_value, max_value):
+	$SubViewport/Health_bar2D.update_health(_value, max_value)
+
+
+
+extends TextureProgressBar
+
+var bar_red = preload("res://Prototype_Scene/Prototype_Texure/barHorizontal_green_mid 200.png")
+var bar_green = preload("res://Prototype_Scene/Prototype_Texure/barHorizontal_red_mid 200.png")
+var bar_yellow = preload("res://Prototype_Scene/Prototype_Texure/barHorizontal_yellow_mid 200.png")
+
+func _ready():
+	hide()
+
+func update_health(_value, maxium_value):
+	value = _value
+	if value < maxium_value:
+		show()
+	texture_progress = bar_green
+	if value < 0.75 * maxium_value:
+		texture_progress = bar_yellow
+	if value < 0.45 * maxium_value:
+		texture_progress = bar_red
+
+
+
+
+func _on_hurt_box_hurt(damage):
+	health -= damage
+	$Health_bar3D.update_health(health, maxium_health)
+	print(health)
+
+func _ready():
+	position.y -= .1
+	health = maxium_health
+
